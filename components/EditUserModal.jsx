@@ -1,6 +1,6 @@
 import { useState ,useEffect} from 'react';
-import { PermissionsAndroid,View, Text, Modal, TouchableOpacity, Image, TextInput, } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { View, Text, Modal, TouchableOpacity, Image, TextInput, } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import Icon from "react-native-vector-icons/AntDesign"
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -8,35 +8,54 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 const EditUserModal = ({ onClose, userData, onEditUser, onEndUser, visible, onReturnUser }) => {
   
   const [userEdit, setUserEdit] = useState(userData);
+  const [fullName, setFullName] = useState(userEdit.first_name + " " + userEdit.last_name);
   const [newImage, setNewImage] = useState(null);
   const [showBirthDay, setShowBirthDay] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
-
+  
   const requestPermissions = async () => {
     try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-      ]);
-
-      granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED ? 
-        console.log('Camera, storage, and audio recording permissions granted') : console.log('One or more permissions denied');
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(); // Request permission using Expo Image Picker
+      if (status !== 'granted') {
+        console.log('Permission to access media library was denied');
+      }
     } catch (err) {
-        console.warn(err);
+      console.warn(err);
     }
   };
   useEffect(() => {
     requestPermissions();
   }, []);
 
+  
+    const handleFullNameChange = (text) => {
+      const words = text.trim().split(" ");
+      console.log(words);
+      setFullName(text);
+      setUserEdit(prevState => ({
+        ...prevState,
+        first_name: words[0],
+        last_name: words.slice(1).join(" ")
+      }));
+    };
+    
 
-  const handleLaunchImageLibrary = () => {
-    launchImageLibrary({ mediaType: 'photo' }, (response) => {
-      if (!response.didCancel && !response.error) {
-        setNewImage({ uri: response.assets[0].uri });
-        setUserEdit({...userEdit, picture_file: response.assets[0].uri })
+    const handleLaunchImageLibrary = async () => { 
+      let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync(); 
+      if (permissionResult.granted === false) {
+        console.log('Permission to access media library is required!');
+        return;
       }
-    });
-  };
+      
+      let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing:true ,aspect: [4, 3] }); // Launch Expo Image Picker
+      if (!result.canceled) {
+        console.log("hi hi");
+        console.log("rsult=== "+result);
+        console.log("uri=== "+result.uri);
+        setNewImage({ uri: result.assets[0].uri });
+        setUserEdit({...userEdit, picture_file: result.assets[0].uri });
+      }
+    };
 
   const onChangeDateBirthDay = (event, selectedDate) => {
     if (selectedDate) {
@@ -66,8 +85,11 @@ const EditUserModal = ({ onClose, userData, onEditUser, onEndUser, visible, onRe
     setShowEndDate(!showEndDate);
   }
 
+
   console.log(userEdit);
   
+
+
   return (
     <Modal
       animationType="slide"
@@ -93,15 +115,8 @@ const EditUserModal = ({ onClose, userData, onEditUser, onEndUser, visible, onRe
             <TextInput
               style={{ borderWidth: 1, borderColor: 'rgb(224 231 255)', borderRadius: 10, width: '60%', padding:8, marginBottom: 10, color: 'black' }}
               placeholder="الاسم الكامل"
-              value={userEdit.first_name + " " + userEdit.last_name}
-              onChangeText={(text) => {
-                const spaceIndex = text.indexOf(" ");
-                setUserEdit({
-                  ...userEdit,
-                  first_name: spaceIndex !== -1 ? text.substring(0, spaceIndex) : text,
-                  last_name: spaceIndex !== -1 ? text.substring(spaceIndex + 1) : "",
-                });
-              }}
+              value={fullName}
+              onChangeText={handleFullNameChange}
             />
 
           </View>

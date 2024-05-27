@@ -220,6 +220,7 @@ const MembersScreen = () => {
         newData[index] = userEdit;
         setData(newData);
         setSelectedUser(null);
+        setIsEditUserModalOpen(false);
       }
     }
     
@@ -230,6 +231,7 @@ const MembersScreen = () => {
         newData[index].active = 0;
         setData(newData);
         setSelectedUser(null);
+        setIsEditUserModalOpen(false);
       }
     };
 
