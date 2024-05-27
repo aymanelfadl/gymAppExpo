@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { launchImageLibrary } from 'react-native-image-picker';
 import { Text, View, Dimensions, Image, TextInput, TouchableOpacity, ScrollView} from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker'; // Import Expo Image Picker
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/AntDesign"
 import AddUserLogo from "../assets/adduserwhite.png";
@@ -25,15 +25,19 @@ const AddUserScreen = () => {
     const [showBirthDay, setShowBirthDay] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
 
-    const handleLaunchImageLibrary = () => {
-        launchImageLibrary({ mediaType: 'photo' }, (response) => {
-          if (!response.didCancel && !response.error) {
-            setUserImage(response.assets[0].uri)
-            setNewUser({...newUser, picture_file: response.assets[0].uri })
-          }
+    const handleLaunchImageLibrary = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
         });
-      };
 
+        if (!result.canceled) {
+            setUserImage(result.assets[0].uri);
+            setNewUser({ ...newUser, picture_file: result.assets[0].uri });
+        }
+    };
       const onChangeDateBirthDay = (event, selectedDate) => {
         const currentDate = selectedDate.toISOString().split('T')[0];
         setNewUser({ ...newUser, date_birth: currentDate });
@@ -57,6 +61,7 @@ const AddUserScreen = () => {
 
       const saveNewUSer = (newUser) =>{
         // TODO ilyass,
+        console.log(newUser);
       }
 
 

@@ -15,7 +15,7 @@ const EditUserModal = ({ onClose, userData, onEditUser, onEndUser, visible, onRe
   
   const requestPermissions = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(); // Request permission using Expo Image Picker
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(); 
       if (status !== 'granted') {
         console.log('Permission to access media library was denied');
       }
@@ -47,7 +47,7 @@ const EditUserModal = ({ onClose, userData, onEditUser, onEndUser, visible, onRe
         return;
       }
       
-      let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing:true ,aspect: [4, 3] }); // Launch Expo Image Picker
+      let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images,allowsEditing:true ,aspect: [4, 3],quality: 1, }); 
       if (!result.canceled) {
         console.log("hi hi");
         console.log("rsult=== "+result);
