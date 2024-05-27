@@ -35,7 +35,7 @@ const DeleteBillModal = ({ onClose, onConf }) => {
             <Image source={deleteLogo} style={{ width: 50, height: 50 }} />
             <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black', marginLeft: 10,maxWidth:200 }}>هل أنت متأكد من حذف هذه الفاتورة؟</Text>
           </View>
-          <View style={{borderColor}}/>
+          <View style={{borderColor:"red"}}/>
           <TouchableOpacity
             style={{ alignSelf: "center", backgroundColor: 'red', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 20 }}
             onPress={onConf}
