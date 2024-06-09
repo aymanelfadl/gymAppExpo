@@ -1,93 +1,144 @@
-import { useState ,useEffect} from 'react';
-import { View, Text, Modal, TouchableOpacity, Image, TextInput, } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, Image, TextInput } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from "react-native-vector-icons/AntDesign"
 import DateTimePicker from '@react-native-community/datetimepicker';
+import axios from 'axios'; // Import axios for making HTTP requests
+
+const EditUserModal = ({ onClose, userData, onEditUser, onEndUser, visible, onReturnUser, serverLink }) => {
+
+    const [userEdit, setUserEdit] = useState(userData);
+    const [fullName, setFullName] = useState(userEdit.first_name);
+    const [newImage, setNewImage] = useState(null);
+    const [fileType, setFileType] = useState(null);
+    const [showBirthDay, setShowBirthDay] = useState(false);
+    const [showEndDate, setShowEndDate] = useState(false);
+    const [file, setFile] = useState(null); // State to store the image file
+    const [fileisHere, setFileisHere] = useState(false); // State to store the image file
 
 
-const EditUserModal = ({ onClose, userData, onEditUser, onEndUser, visible, onReturnUser }) => {
-  
-  const [userEdit, setUserEdit] = useState(userData);
-  const [fullName, setFullName] = useState(userEdit.first_name + " " + userEdit.last_name);
-  const [newImage, setNewImage] = useState(null);
-  const [showBirthDay, setShowBirthDay] = useState(false);
-  const [showEndDate, setShowEndDate] = useState(false);
-  
-  const requestPermissions = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(); 
-      if (status !== 'granted') {
-        console.log('Permission to access media library was denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-  useEffect(() => {
-    requestPermissions();
-  }, []);
+    useEffect(() => {
+        requestPermissions(); // Request permissions when the component mounts
+    }, []);
 
-  
+    // Function to request permissions for accessing the media library
+    const requestPermissions = async () => {
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                console.log('Permission to access media library was denied');
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    };
+
+    // Function to handle changes in the full name input
     const handleFullNameChange = (text) => {
-      const words = text.trim().split(" ");
-      console.log(words);
-      setFullName(text);
-      setUserEdit(prevState => ({
-        ...prevState,
-        first_name: words[0],
-        last_name: words.slice(1).join(" ")
-      }));
+        setFullName(text);
+        setUserEdit(prevState => ({
+            ...prevState,
+            first_name: text,
+        }));
     };
-    
 
-    const handleLaunchImageLibrary = async () => { 
-      let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync(); 
+    // Function to handle image selection from the media library
+    const handleLaunchImageLibrary = async () => {
+      let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (permissionResult.granted === false) {
-        console.log('Permission to access media library is required!');
-        return;
+          console.log('Permission to access media library is required!');
+          return;
       }
-      
-      let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images,allowsEditing:true ,aspect: [4, 3],quality: 1, }); 
-      if (!result.canceled) {
-        console.log("hi hi");
-        console.log("rsult=== "+result);
-        console.log("uri=== "+result.uri);
-        setNewImage({ uri: result.assets[0].uri });
-        setUserEdit({...userEdit, picture_file: result.assets[0].uri });
+  
+      let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+      });
+      if (!result.cancelled) {
+          const uri = result.assets[0].uri;
+          const fileType = uri.split('.').pop(); // Extract file type from URI
+          console.log('Selected image URI:', uri);
+          console.log('File type:', fileType);
+          setFileType(fileType);
+          setFile({
+              uri: uri,
+              type: `image/${fileType}`,
+              name: `${userEdit.first_name}.${fileType}`,
+          });
+          setFileisHere(true);
+          setNewImage({ uri });
+          setUserEdit({ ...userEdit, picture_file: uri });
       }
+  };
+  
+    // Function to handle the date of birth selection
+    const onChangeDateBirthDay = (event, selectedDate) => {
+        if (selectedDate) {
+            const currentDate = selectedDate.toISOString().split('T')[0];
+            setUserEdit({ ...userEdit, date_birth: currentDate });
+        }
+        setShowBirthDay(false);
     };
 
-  const onChangeDateBirthDay = (event, selectedDate) => {
-    if (selectedDate) {
-      const currentDate = selectedDate.toISOString().split('T')[0];
-      setUserEdit({ ...userEdit, date_birth: currentDate });
-    } else {
-      setUserEdit({ ...userEdit, date_birth: userEdit.date_birth });
-    }
-    setShowBirthDay(false);
-  };
+    // Function to handle the end date selection
+    const onChangeDateEnd = (event, selectedDate) => {
+        if (selectedDate) {
+            const currentDate = selectedDate.toISOString().split('T')[0];
+            setUserEdit({ ...userEdit, end_date: currentDate });
+        } 
+        setShowEndDate(false);
+    };
 
-  const onChangeDateEnd= (event, selectedDate) => {
-    if (selectedDate) {
-      const currentDate = selectedDate.toISOString().split('T')[0];
-      setUserEdit({ ...userEdit, end_date: currentDate });
-    } else {
-      setUserEdit({ ...userEdit, end_date: userEdit.end_date });
-    }
-    setShowEndDate(false);
-  };
+    // Function to toggle the visibility of the date picker for the date of birth
+    const showMode = () => {
+        setShowBirthDay(!showBirthDay);
+    };
 
-  const showMode = () => {
-    setShowBirthDay(!showBirthDay);
-  }
+    // Function to toggle the visibility of the date picker for the end date
+    const showModeEnd = () => {
+        setShowEndDate(!showEndDate);
+    };
 
-  const showModeEnd = () =>{
-    setShowEndDate(!showEndDate);
-  }
+    // Function to handle the modification of user data
+    const modifyUser = async () => {
+        try {
 
+            const formData = new FormData();
 
-  console.log(userEdit);
-  
+            formData.append('first_name', userEdit.first_name);
+
+            // Append the file with appropriate parameters
+            if (fileisHere) {
+
+                formData.append('picture_file', {
+                    uri: file.uri,
+                    name: `${userEdit.first_name}.${fileType}`,
+                    type: `image/${fileType}`,
+                });
+            }
+            console.log(fileisHere + "wtf is hapening");
+
+            formData.append('date_birth', userEdit.date_birth);
+            formData.append('phone_number', userEdit.phone_number);
+            formData.append('end_date', userEdit.end_date);
+
+            const response = await axios.post(`${serverLink}api/client/${userData.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log('Upload success', response.data);
+            onEditUser(userEdit);
+            // You may want to perform additional actions upon successful upload
+
+        } catch (error) {
+            console.error('Upload error', error);
+            // Handle upload error
+        }
+    };
 
 
   return (
@@ -179,7 +230,7 @@ const EditUserModal = ({ onClose, userData, onEditUser, onEndUser, visible, onRe
                 <Text style={{ color: 'green', fontSize: 18 }}>إرجاع العضوية</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity onPress={() => onEditUser(userEdit)} style={{ borderRadius: 100, paddingHorizontal: 25, marginHorizontal: 20, backgroundColor: "blue", padding: 10, elevation: 5 }}>
+            <TouchableOpacity onPress={() =>modifyUser() } style={{ borderRadius: 100, paddingHorizontal: 25, marginHorizontal: 20, backgroundColor: "blue", padding: 10, elevation: 5 }}>
               <Text style={{ color: 'white', fontSize: 18 }}>حفظ</Text>
             </TouchableOpacity>
           </View>

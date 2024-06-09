@@ -1,76 +1,129 @@
-import { useState } from "react";
-import { Image, Text, View, TextInput, TouchableOpacity, ScrollView } from "react-native";
-import FitFlexLogo from "../assets/Fitflex-HD.png";
-import { useNavigation } from "@react-navigation/native";
+import React, { useState, useEffect } from 'react';
+import { Image, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import FitFlexLogo from '../assets/Fitflex-HD.png';
+import { useNavigation } from '@react-navigation/native';
+import { setUser, getLink } from './GlobalState'; // Adjust the path as necessary
 
-const LoginScreen = (onLogin) => {
 
+const LoginScreen = () => {
   const navigation = useNavigation();
 
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
-  const [errMessages, setErrMessages] = useState("");
+  const [email, setEmail] = useState('');
+  const [serverLink, setServerLink] = useState('');
 
-  // password forgots
-  const handleForgetPassword = () =>{
-    console.log("forget password");
-  }
+  const [password, setPassword] = useState('');
+  const [errMessages, setErrMessages] = useState('');
+  const [useris, setUseris] = useState(null);
 
-  // login backend 
+  useEffect(() => {
+    const link = getLink();
+    setServerLink(link);
+    console.log("Server link initialized: ", link);
+}, []);
 
-  const handleLogin = () =>{
-    navigation.navigate("HomeScreen");
-  }
+  // Handle forget password
+  const handleForgetPassword = () => {
+    console.log('forget password');
+  };
+
+  // Handle login backend
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(serverLink + 'api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        // Handle HTTP error response
+        const data = await response.json();
+        setErrMessages(data.message || 'Login failed');
+        return;
+      }
+
+      // Check if response body is empty
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.indexOf('application/json') !== -1) {
+        const data = await response.json();
+        // Login successful
+        console.log('Login successful');
+        console.log("zqb : " + data.data.user);
+        setUser(data.data.user).then(() => {
+          navigation.navigate('HomeScreen');
+      });
+
+
+        // Assuming you have AsyncStorage installed for storing tokens in React Native
+        // Uncomment the following line if you have AsyncStorage set up
+        // await AsyncStorage.setItem('accessToken', data.data.access_token.token);
+
+        // Navigate to HomeScreen after successful login
+      } else {
+        // No JSON data in response
+        console.log('No JSON data received');
+        setErrMessages('Login failed. No data received.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setErrMessages('An error occurred. Please try again.');
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={{ 
         flex: 1, 
-        flexDirection: "column", 
-        backgroundColor: "rgb(191 219 254)", 
-        justifyContent: "center", 
-        alignItems: "center" 
+        flexDirection: 'column', 
+        backgroundColor: 'rgb(191 219 254)', 
+        justifyContent: 'center', 
+        alignItems: 'center' 
       }}>
         <View style={{ 
           borderTopLeftRadius: 0, 
           borderTopRightRadius: 0, 
           borderBottomLeftRadius: 100, 
           borderBottomRightRadius: 100, 
-          backgroundColor: "white", 
-          height: "30%", 
-          width: "100%", 
-          justifyContent: "center", 
-          alignItems: "center" 
+          backgroundColor: 'white', 
+          height: '30%', 
+          width: '100%', 
+          justifyContent: 'center', 
+          alignItems: 'center' 
         }}>
           <Image 
             source={FitFlexLogo} 
             style={{ 
-              width: "80%", 
-              height: "100%", 
-              resizeMode: "contain" 
+              width: '80%', 
+              height: '100%', 
+              resizeMode: 'contain' 
             }} 
           />
         </View>
 
         <View style={{ 
           flex: 1, 
-          width: "100%" 
+          width: '100%' 
         }}>
           <View style={{ 
-            backgroundColor: "rgb(191 219 254)", 
-            height: "100%", 
-            flexDirection: "column", 
-            justifyContent: "center" 
+            backgroundColor: 'rgb(191 219 254)', 
+            height: '100%', 
+            flexDirection: 'column', 
+            justifyContent: 'center' 
           }}>
             <Text style={{ 
-              color: "white", 
-              textAlign: "center", 
+              color: 'white', 
+              textAlign: 'center', 
               fontSize: 34, 
-              fontWeight: "900", 
-              marginBottom: "5%" 
+              fontWeight: '900', 
+              marginBottom: '5%' 
             }}>تسجيل الدخول</Text>
             <View style={{ 
-              shadowColor: "black", 
+              shadowColor: 'black', 
               shadowOffset: { 
                 width: 0, 
                 height: 2 
@@ -79,15 +132,15 @@ const LoginScreen = (onLogin) => {
               shadowRadius: 3.84, 
               elevation: 5, 
               borderRadius: 100, 
-              width: "80%", 
-              alignSelf: "center", 
+              width: '80%', 
+              alignSelf: 'center', 
               marginVertical: 20 
             }}>
               <TextInput 
                 style={{ 
-                  textAlign: "right", 
-                  backgroundColor: "rgb(248 250 252)", 
-                  color: "black", 
+                  textAlign: 'right', 
+                  backgroundColor: 'rgb(248 250 252)', 
+                  color: 'black', 
                   fontSize: 18, 
                   borderRadius: 100, 
                   paddingRight: 20, 
@@ -95,15 +148,15 @@ const LoginScreen = (onLogin) => {
                   paddingTop: 10, 
                   paddingBottom: 10,
                 }} 
-                placeholder="اسم المستخدم" 
-                placeholderTextColor="gray"
-                onChangeText={setUserName}
-                value={userName} 
+                placeholder='اسم المستخدم' 
+                placeholderTextColor='gray'
+                onChangeText={setEmail}
+                value={email} 
               />
             </View>
 
             <View style={{ 
-              shadowColor: "black", 
+              shadowColor: 'black', 
               shadowOffset: { 
                 width: 0, 
                 height: 2 
@@ -112,15 +165,15 @@ const LoginScreen = (onLogin) => {
               shadowRadius: 3.84, 
               elevation: 5, 
               borderRadius: 100, 
-              width: "80%", 
-              alignSelf: "center", 
+              width: '80%', 
+              alignSelf: 'center', 
               marginVertical: 20 
             }}>
               <TextInput 
                 style={{ 
-                  textAlign: "right", 
-                  backgroundColor: " rgb(248 250 252)", 
-                  color: "black", 
+                  textAlign: 'right', 
+                  backgroundColor: ' rgb(248 250 252)', 
+                  color: 'black', 
                   fontSize: 18, 
                   borderRadius: 100, 
                   paddingRight: 20, 
@@ -128,8 +181,9 @@ const LoginScreen = (onLogin) => {
                   paddingTop: 10, 
                   paddingBottom: 10 
                 }} 
-                placeholder="كلمة المرور" 
-                placeholderTextColor="gray"
+                placeholder='كلمة المرور' 
+                placeholderTextColor='gray'
+                secureTextEntry
                 onChangeText={setPassword}
                 value={password} 
               />
@@ -138,15 +192,15 @@ const LoginScreen = (onLogin) => {
             <TouchableOpacity onPress={handleForgetPassword}>
               <Text style={{ 
                 fontSize: 14, 
-                color: "white", 
-                textAlign: "right", 
-                marginRight: "20%" 
+                color: 'white', 
+                textAlign: 'right', 
+                marginRight: '20%' 
               }}>نسيت كلمة المرور ؟</Text>
             </TouchableOpacity>
 
             <View>
               <TouchableOpacity style={{ 
-                  shadowColor: "black", 
+                  shadowColor: 'black', 
                   shadowOffset: { 
                     width: 0, 
                     height: 2 
@@ -154,39 +208,39 @@ const LoginScreen = (onLogin) => {
                   shadowOpacity: 0.25, 
                   shadowRadius: 3.84, 
                   elevation: 5, 
-                  alignSelf: "center", 
-                  backgroundColor: "rgb(248 250 252)", 
+                  alignSelf: 'center', 
+                  backgroundColor: 'rgb(248 250 252)', 
                   borderRadius: 100, 
-                  width: "50%", 
-                  marginVertical: "10%",
+                  width: '50%', 
+                  marginVertical: '10%',
                   padding:6
                   }}
                onPress={handleLogin}
               >
                 <Text style={{ 
-                  alignSelf: "center", 
-                  color: "gray", 
+                  alignSelf: 'center', 
+                  color: 'gray', 
                   fontSize: 26, 
-                  fontWeight: "light" 
-                }}>تسجيل</Text>
+                  fontWeight: 'light' 
+                }}> تسجيل</Text>
               </TouchableOpacity>
             </View>
             <View style={{
-              alignItems:"center"
+              alignItems:'center'
             }}>
               <Text style={{
-                color:"red",
+                color:'red',
                 fontSize:24,
-                fontWeight:"700",
+                fontWeight:'700',
               }}>
                 {errMessages}
               </Text>
             </View>
             <View style={{ 
               borderBottomWidth: 1, 
-              borderBottomColor: "white", 
-              width: "80%", 
-              alignSelf: "center" 
+              borderBottomColor: 'white', 
+              width: '80%', 
+              alignSelf: 'center' 
             }} />
           </View>
         </View>

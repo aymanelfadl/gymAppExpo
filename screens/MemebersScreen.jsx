@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import { Text, View, Dimensions, Image, TextInput, StyleSheet } from "react-native";
 import MembersLogoWhite from "../assets/equipewhite.png";
 import Icon from "react-native-vector-icons/AntDesign";
@@ -6,121 +6,44 @@ import MembersTable from "../components/MambersTable";
 import { SelectCountry } from 'react-native-element-dropdown';
 import EditUserModal from "../components/EditUserModal";
 import HistPaymentModal from "../components/HistPaymentModal";
+import { getUser, getLink } from './GlobalState'; // Adjust the path as necessary
+import axios from 'axios';
+
 const MembersScreen = () => {
   
     const windowHeight = Dimensions.get('window').height;
     const windowWidth = Dimensions.get('window').width;
+    const[serverLink, setServerLink] =useState('');
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+      setUser(getUser());
+      const link = getLink();
+      setServerLink(link);
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+        
+       
+      fetchData();
+    }
+}, [user]);
+
+const fetchData = async () => {
+  try {
+      const response = await axios.get(`${serverLink}api/client/bygym/${user.id}`);
+      setData(response.data.clients);
+      console.log(response.data.clients);
+
+  } catch (error) {
+      console.error('Error fetching data:', error);
+  }
+};
+
+
     
-    const [data, setData] = useState([
-        {
-          id: 1,
-          first_name: "John",
-          last_name: "Doe",
-          date_birth: "1990-05-15",
-          phone_number: "+1234567890",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          end_date: "2025-12-31",
-          created_at: "2024-04-1T11:06:24.000Z", // Today
-          updated_at: "2024-04-18T11:06:24.000Z",
-          active: 1
-        },
-        {
-          id: 2,
-          first_name: "Alice",
-          last_name: "Smith",
-          date_birth: "1985-08-25",
-          phone_number: "+1987654321",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          end_date: "2024-04-15",
-          created_at: "2024-04-25T11:08:24.000Z", // Within one week
-          updated_at: "2024-04-18T11:08:24.000Z",
-          active: 1
-        },
-        {
-          id: 3,
-          first_name: "Emma",
-          last_name: "Johnson",
-          date_birth: "1993-02-10",
-          phone_number: "+1122334455",
-          end_date: "2024-08-29",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          created_at: "2024-03-01T11:08:24.000Z", // Within one month
-          updated_at: "2024-04-18T11:08:24.000Z",
-          active: 1
-        },
-        {
-          id: 5,
-          first_name: "Sophia",
-          last_name: "Garcia",
-          date_birth: "1991-07-20",
-          phone_number: "+1231231234",
-          end_date: "2023-05-10",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          created_at: "2023-04-01T11:08:24.000Z", // More than one month ago
-          updated_at: "2024-04-18T11:08:24.000Z",
-          active: 1
-        },
-        {
-          id: 6,
-          first_name: "Ethan",
-          last_name: "Miller",
-          date_birth: "1988-03-28",
-          phone_number: "+9876543210",
-          end_date: "2024-11-15",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          created_at: "2023-11-01T11:08:24.000Z", // More than one month ago
-          updated_at: "2024-04-18T11:08:24.000Z",
-          active: 1
-        },
-        {
-          id: 7,
-          first_name: "Olivia",
-          last_name: "Brown",
-          date_birth: "1995-12-10",
-          phone_number: "+1122334455",
-          end_date: "2024-07-02",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          created_at: "2022-03-10T11:08:24.000Z", // More than one month ago
-          updated_at: "2024-04-18T11:08:24.000Z",
-          active: 1
-        },
-        {
-          id: 8,
-          first_name: "Liam",
-          last_name: "Taylor",
-          date_birth: "1983-09-18",
-          phone_number: "+9998887776",
-          end_date: "2023-04-25",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          created_at: "2024-04-29T11:08:24.000Z", 
-          updated_at: "2024-04-18T11:08:24.000Z",
-          active: 0
-        },
-        {
-          id: 9,
-          first_name: "Ava",
-          last_name: "Clark",
-          date_birth: "1992-01-30",
-          phone_number: "+4567891230",
-          end_date: "2022-10-20",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          created_at: "2024-03-01T11:08:24.000Z", 
-          updated_at: "2024-04-18T11:08:24.000Z",
-          active: 0// 
-        },
-        {
-          id: 10,
-          first_name: "Noah",
-          last_name: "Wilson",
-          date_birth: "1987-06-12",
-          phone_number: "+9876543210",
-          end_date: "2025-08-20",
-          picture_file: "https://via.placeholder.com/640x480.png/009988?text=eius", 
-          created_at: "2024-04-25T11:08:24.000Z", 
-          updated_at: "2024-04-18T11:08:24.000Z",
-          active: 1
-        }
-      ]);
+    const [data, setData] = useState(null);
       const [paymentHistData, setPaymentHistData] = useState([
         {
           id: 1,
@@ -382,13 +305,16 @@ const MembersScreen = () => {
             />
 
             </View>
-            
-            <MembersTable 
+            {
+              data&&
+              <MembersTable 
               data={filterData()}
               searchTerm={searchTerm}
               onEditUser={handleSelctedUser}
               onOpenHistPayment={handleHistPayment}
             />
+            }
+          
 
             {isEditUserModalOpen &&
               <EditUserModal
@@ -397,7 +323,10 @@ const MembersScreen = () => {
                 onEditUser={handleUserEdit}
                 onEndUser={handleEndUser}
                 onReturnUser={handleReturnUser}
-                onClose={handleUserEditClose}/>
+                id_user={user.id}
+                onClose={handleUserEditClose}
+                serverLink={serverLink}
+                />
             }
 
             {showHistPayment && 
