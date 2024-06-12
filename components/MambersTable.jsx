@@ -5,7 +5,7 @@ import Icon from "react-native-vector-icons/Feather";
 const MembersTable = ({ data, searchTerm, onEditUser , onOpenHistPayment}) => {
     
     const filteredData = data.filter((item) => {
-        const fullName = `${item.first_name} ${item.last_name}`.toLowerCase();
+        const fullName = `${item.first_name}`.toLowerCase();
         const searchTermLower = searchTerm.toLowerCase();
         const matches = fullName.includes(searchTermLower) || item.last_name.toLowerCase().includes(searchTermLower);
         return matches;
@@ -27,16 +27,16 @@ const MembersTable = ({ data, searchTerm, onEditUser , onOpenHistPayment}) => {
             elevation:5 , 
             
         }}>
-            <TouchableOpacity onPress={()=>onOpenHistPayment(item.id)} style={{ flex: 1 ,justifyContent: 'center', alignItems: 'center', paddingHorizontal:10 }}>
+            <TouchableOpacity onPress={()=>onOpenHistPayment(item)} style={{ flex: 1 ,justifyContent: 'center', alignItems: 'center', paddingHorizontal:10 }}>
                 <Image
                     source={ {uri: item.picture_file} }
                     style={{ width: 40, height: 40, borderRadius: 25 }}
                 />
             </TouchableOpacity>
-            <TouchableOpacity onPress={()=>onOpenHistPayment(item.id)} style={{ flex: 3, justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity onPress={()=>onOpenHistPayment(item)} style={{ flex: 3, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ color:"black",fontWeight: 'bold' }}>{item.first_name} {item.last_name}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={()=>onOpenHistPayment(item.id)} style={{ flex: 3, justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity onPress={()=>onOpenHistPayment(item)} style={{ flex: 3, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{color:"black", fontWeight:"bold"}}>{item.end_date}</Text>
             </TouchableOpacity>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

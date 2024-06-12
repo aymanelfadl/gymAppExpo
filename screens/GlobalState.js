@@ -2,7 +2,7 @@
 let globalState = {
     user: null,
 
-    serverLink:"http://192.168.11.240:8000/",
+    serverLink:"http://192.168.11.103:8000/",
 };
 
 export const setUser = (user) => {

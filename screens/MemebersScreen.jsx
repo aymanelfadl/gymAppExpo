@@ -41,87 +41,31 @@ const fetchData = async () => {
   }
 };
 
+const disactivateClient = async () => {
+  try {
+    const response = await axios.post(`${serverLink}api/client/disactivate/${selectedUser.id}`);
+    console.log('Client disactivated successfully!', response.data);
+    handleEndUser();
+   
+  } catch (error) {
+    console.error('An error occurred while disactivating the client:', error);
+  }
+};
+const activateClient = async () => {
+  try {
+    const response = await axios.post(`${serverLink}api/client/activate/${selectedUser.id}`);
+    console.log('Client sactivated successfully!', response.data);
+    handleReturnUser();     
+  } catch (error) {
+    console.error('An error occurred while disactivating the client:', error);
+  }
+};
 
     
     const [data, setData] = useState(null);
-      const [paymentHistData, setPaymentHistData] = useState([
-        {
-          id: 1,
-          id_user: 4,
-          paid_price: "790.24",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        },
-        {
-          id: 2,
-          id_user: 4,
-          paid_price: "405.86",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        },
-        {
-          id: 3,
-          id_user: 4,
-          paid_price: "806.28",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        }, {
-          id: 4,
-          id_user: 4,
-          paid_price: "790.24",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        },
-        {
-          id: 5,
-          id_user: 4,
-          paid_price: "405.86",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        },
-        {
-          id: 6,
-          id_user: 4,
-          paid_price: "806.28",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        },
-        {
-          id: 7,
-          id_user: 4,
-          paid_price: "790.24",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        },
-        {
-          id: 8,
-          id_user: 4,
-          paid_price: "405.86",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        },
-        {
-          id: 9,
-          id_user: 4,
-          paid_price: "806.28",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        }, {
-          id: 10,
-          id_user: 4,
-          paid_price: "790.24",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        },
-        {
-          id: 90,
-          id_user: 4,
-          paid_price: "405.86",
-          created_at: "2024-04-18T11:12:16.000000Z",
-          updated_at: "2024-04-18T11:12:16.000000Z"
-        }
     
-      ]);
+    
+    
       
     const [searchTerm, setSearchTerm] = useState("");
     const [filterOption, setFilterOption] = useState('all');
@@ -165,6 +109,8 @@ const fetchData = async () => {
         newData[index].active = 1;
         setData(newData);
         setSelectedUser(null);
+        setIsEditUserModalOpen(false);
+
       }
     };
 
@@ -174,9 +120,8 @@ const fetchData = async () => {
     }
 
 
-    const handleHistPayment = (id) =>{
-      console.log(id);
-      setSelectedUser(data.at(id));
+    const handleHistPayment = (user) =>{
+      setSelectedUser(user);
       setShowHistPayment(true);
     }
 
@@ -321,8 +266,8 @@ const fetchData = async () => {
                 visible={isEditUserModalOpen}
                 userData={selectedUser}
                 onEditUser={handleUserEdit}
-                onEndUser={handleEndUser}
-                onReturnUser={handleReturnUser}
+                onEndUser={disactivateClient}
+                onReturnUser={activateClient}
                 id_user={user.id}
                 onClose={handleUserEditClose}
                 serverLink={serverLink}
@@ -332,8 +277,8 @@ const fetchData = async () => {
             {showHistPayment && 
               <HistPaymentModal 
                 userData={selectedUser}
-                userHistPaymentData={paymentHistData}   
                 onClose={()=>setShowHistPayment(false)}
+                serverLink={serverLink}
               />
             }
     </View>

@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import { Text, View, Dimensions, Image, TextInput, StyleSheet } from "react-native";
 import BillLogo from "../assets/billwhite.png";
 import Icon from "react-native-vector-icons/AntDesign";
 import { SelectCountry } from 'react-native-element-dropdown';
 import BillsTable from "../components/BillsTable";
 import DeleteBillModal from "../components/DeleteBillModal";
+import { getUser, getLink } from './GlobalState'; // Adjust the path as necessary
+import axios from 'axios';
 
 const BillsScreen = ()=>{
 
     const windowHeight = Dimensions.get('window').height;
     const windowWidth = Dimensions.get('window').width;
+    const[serverLink, setServerLink] =useState('');
+    const [user, setUser] = useState(null);
     
 
     const [data, setData] = useState([ {
@@ -29,19 +33,53 @@ const BillsScreen = ()=>{
     const [searchTerm, setSearchTerm] = useState("");
     const [filterOption, setFilterOption] = useState('all');
     const [selectedUser, setSelectedUser] = useState(null);
+    const fetchData = async () => {
+      try {
+          const response = await axios.get(`${serverLink}api/payment/gym/${user.id}`);
+          console.log(response.data.payments);
+          setData(response.data.payments)
+
+    
+      } catch (error) {
+          console.error('Error fetching data:', error);
+      }
+    };
+    useEffect(() => {
+      setUser(getUser());
+      const link = getLink();
+      setServerLink(link);
+  }, []);
+  useEffect(() => {
+    if (user) {
+        
+       
+      fetchData();
+    }
+}, [user]);
 
 
-      
     const handleSelecteBill =(item) =>{
         console.log(item);
         setSelectedUser(item);
     }
   
     const handleDeleteBill = () => {
+
         const newData = data.filter(user => user.id !== selectedUser.id);
         setData(newData);
         setSelectedUser(null);
     };
+    const deletePayment = async () => {
+      try {
+        await axios.delete(`${serverLink}api/payment/${selectedUser.id}`);
+        console.log(`Payment ${selectedUser.id} deleted successfully!`);
+        handleDeleteBill();
+      } catch (error) {
+        console.error(`Error deleting payment ${selectedUser.id}:`, error);
+      }
+    };
+
+
 
     const filterData = () => {
         let filteredData = [...data];
@@ -165,7 +203,7 @@ const BillsScreen = ()=>{
                 {selectedUser && 
                     <DeleteBillModal 
                         onClose={() => setSelectedUser(null)} 
-                        onConf={handleDeleteBill} 
+                        onConf={deletePayment} 
                     />
                 }
 
