@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import FitFlexLogo from "../assets/Fitflex-HD.png";
 import { useNavigation } from "@react-navigation/native";
-import { setUser, getLink } from "./GlobalState"; // Adjust the path as necessary
+import { setUser, getLink } from "./GlobalState";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -20,7 +20,6 @@ const LoginScreen = () => {
 
   const [password, setPassword] = useState("");
   const [errMessages, setErrMessages] = useState("");
-  const [useris, setUseris] = useState(null);
 
   useEffect(() => {
     const link = getLink();
@@ -76,7 +75,7 @@ const LoginScreen = () => {
         setErrMessages("Login failed. No data received.");
       }
     } catch (error) {
-      console.error("Error ayman:", error);
+      console.error("Error", error);
       setErrMessages("An error occurred. Please try again.");
     }
   };
