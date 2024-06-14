@@ -1,7 +1,11 @@
 // GlobalState.js
 let globalState = {
-  serverLink: "http://192.168.1.114:8000/",
+  serverLink: "http://192.168.1.106:8000/",
   user: null,
+};
+
+export const getLink = () => {
+  return globalState.serverLink;
 };
 
 export const setUser = (user) => {
@@ -15,7 +19,4 @@ export const setUser = (user) => {
 export const getUser = () => {
   console.log("ill return  : " + globalState.user);
   return globalState.user;
-};
-export const getLink = () => {
-  return globalState.serverLink;
 };

@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from "react-native";
 import FitFlexLogo from "../assets/Fitflex-HD.png";
 import { useNavigation } from "@react-navigation/native";
