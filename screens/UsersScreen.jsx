@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Image, ScrollView, Text, View, Dimensions } from "react-native";
 import UsersLogo from "../assets/users.png";
 import Icon from "react-native-vector-icons/AntDesign";
@@ -6,8 +6,9 @@ import ProgressBar from "../components/ProgressBar";
 import PlusLogo from "../assets/plus.png";
 import NoMoneyLogo from "../assets/nomoney.png";
 import userLogo from "../assets/userIcon.png";
-import { getUser, getLink } from "./GlobalState"; // Adjust the path as necessary
+import { getUser, getLink } from "./GlobalState";
 import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
 
 const UsersScreen = () => {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -21,11 +22,6 @@ const UsersScreen = () => {
     setServerLink(link);
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
   const fetchData = async () => {
     try {
       const response = await axios.get(
@@ -39,6 +35,14 @@ const UsersScreen = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchData();
+      }
+    }, [user])
+  );
 
   const windowHeight = Dimensions.get("window").height;
   const windowWidth = Dimensions.get("window").width;

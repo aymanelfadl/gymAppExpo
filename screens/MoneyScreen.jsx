@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Image, ScrollView, Text, View, Dimensions } from "react-native";
 import InComeLogo from "../assets/generous.png";
 import CoinsLogo from "../assets/coin.png";
@@ -9,6 +9,7 @@ import MonthLogo from "../assets/month.png";
 import moneyLogo from "../assets/money.png";
 import { getUser, getLink } from "./GlobalState"; // Adjust the path as necessary
 import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native"; // this for updating UI
 
 const MoneyScreen = () => {
   const [totalIncome, setTotalIncome] = useState(0);
@@ -22,11 +23,6 @@ const MoneyScreen = () => {
     setServerLink(link);
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
   const fetchData = async () => {
     console.log(`${serverLink}/api/dashboardNumbers/${user.id}`);
 
@@ -41,6 +37,14 @@ const MoneyScreen = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchData();
+      }
+    }, [user])
+  );
 
   const windowHeight = Dimensions.get("window").height;
   const windowWidth = Dimensions.get("window").width;

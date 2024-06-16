@@ -7,7 +7,7 @@ const MembersTable = ({ data, searchTerm, onEditUser , onOpenHistPayment}) => {
     const filteredData = data.filter((item) => {
         const fullName = `${item.first_name}`.toLowerCase();
         const searchTermLower = searchTerm.toLowerCase();
-        const matches = fullName.includes(searchTermLower) || item.last_name.toLowerCase().includes(searchTermLower);
+        const matches = fullName.includes(searchTermLower);
         return matches;
     });
 
