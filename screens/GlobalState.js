@@ -1,6 +1,6 @@
 // GlobalState.js
 let globalState = {
-  serverLink: "http://192.168.11.221:8000/",
+  serverLink: "http://192.168.1.106:8000/",
   user: null,
 };
 
