@@ -99,7 +99,7 @@ const saveAccessToken = async (token) => {
       }
     } catch (error) {
       console.error("Error", error);
-      setErrMessages("An error occurred. Please try again.");
+      setErrMessages("An error occurred. Please try again. " + error +" "+ serverLink);
     }
   };
 
