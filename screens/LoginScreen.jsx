@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
   Image,
   Text,
@@ -14,11 +16,22 @@ import { setUser, getLink } from "./GlobalState";
 const LoginScreen = () => {
   const navigation = useNavigation();
 
+
   const [email, setEmail] = useState("");
   const [serverLink, setServerLink] = useState("");
 
   const [password, setPassword] = useState("");
   const [errMessages, setErrMessages] = useState("");
+
+const saveAccessToken = async (token) => {
+  try {
+    await AsyncStorage.setItem('accessToken', token);
+    console.log('Token saved successfully' + token);
+  } catch (error) {
+    console.error('Failed to save the token:', error);
+  }
+};
+
 
   useEffect(() => {
     const link = getLink();
@@ -58,6 +71,9 @@ const LoginScreen = () => {
         const data = await response.json();
         // Login successful
         console.log("Login successful");
+        saveAccessToken(data.data.access_token.token);
+      
+
         console.log("zqb : " + data.data.user);
         setUser(data.data.user).then(() => {
           navigation.navigate("HomeScreen");

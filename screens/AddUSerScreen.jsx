@@ -21,7 +21,7 @@ const AddUserScreen = () => {
         first_name: "",
         date_birth: "",
         phone_number: "",
-        subscription_amount: "",
+        paid_price: "",
         end_date: "",
     });
     const [useImage, setUserImage] = useState(null);  
@@ -52,7 +52,7 @@ const AddUserScreen = () => {
 
             formData.append('date_birth', newUser.date_birth);
             formData.append('phone_number', newUser.phone_number);
-            formData.append('subscription_amount', newUser.subscription_amount);
+            formData.append('paid_price', newUser.paid_price);
             formData.append('end_date', newUser.end_date);
             formData.append('id_user', user.id);
 
@@ -210,8 +210,8 @@ const AddUserScreen = () => {
                                     style={{ borderWidth: 1, borderColor: 'rgb(224 231 255)', borderRadius: 10, width: '60%', padding: 8, marginBottom: 10, color: 'black' }}
                                     placeholder="المبلغ المؤدى من الزبون"
                                     placeholderTextColor="gray"
-                                    value={newUser.subscription_amount}
-                                    onChangeText={(text) => setNewUser({ ...newUser, subscription_amount: text })}
+                                    value={newUser.paid_price}
+                                    onChangeText={(text) => setNewUser({ ...newUser, paid_price: text })}
                                     />
                                 </View>
 
