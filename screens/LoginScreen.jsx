@@ -82,7 +82,6 @@ const saveAccessToken = async (token) => {
         saveAccessToken(data.data.access_token.token);
       
 
-        console.log("zqb : " + data.data.user);
         setUser(data.data.user).then(() => {
           navigation.navigate("HomeScreen");
         });
@@ -99,7 +98,7 @@ const saveAccessToken = async (token) => {
       }
     } catch (error) {
       console.error("Error", error);
-      setErrMessages("An error occurred. Please try again. " + error +" "+ serverLink);
+      setErrMessages( error +" "+ serverLink);
     }
   };
 
