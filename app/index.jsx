@@ -66,11 +66,9 @@ const App = () => {
           console.log('Token retrieved:', token);
           setAccessToken(token);
         } else {
-          setLoadingUser(false);
         }
       } catch (error) {
         console.error('Failed to retrieve the token:', error);
-        setLoadingUser(false);
       }
     };
 
@@ -88,10 +86,10 @@ const App = () => {
         },
       });
       setUser(response.data.data.user); // Set user data in state
-      setLoadingUser(false);
+      if(response.data.data?.user){setLoadingUser(false);}
+
     } catch (error) {
       console.error("Error fetching user data:", error);
-      setLoadingUser(false);
     }
   };
 
@@ -101,9 +99,7 @@ const App = () => {
     }
   }, [accessToken]); // Run effect whenever access token changes
 
-  if (loadingUser) {
-    return null; // Optionally, show a loading indicator here
-  }
+ 
 
   return (
     <NavigationContainer independent={true}>
@@ -112,7 +108,7 @@ const App = () => {
           name='Login'
           options={{ headerShown: false }}
         >
-          {props => <LoginScreen {...props} serverLink={serverLink} />}
+          {props => <LoginScreen {...props} isLogin={!loadingUser} />}
         </Stack.Screen>
         <Stack.Screen
           name='HomeScreen'

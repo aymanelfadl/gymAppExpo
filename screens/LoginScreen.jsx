@@ -13,7 +13,7 @@ import FitFlexLogo from "../assets/Fitflex-HD.png";
 import { useNavigation } from "@react-navigation/native";
 import { setUser, getLink } from "./GlobalState";
 
-const LoginScreen = () => {
+const LoginScreen = ({isLogin}) => {
   const navigation = useNavigation();
 
 
@@ -38,6 +38,14 @@ const saveAccessToken = async (token) => {
     setServerLink(link);
     console.log("Server link initialized: ", link);
   }, []);
+
+
+  useEffect(() => {
+    if (isLogin) {
+      navigation.navigate("HomeScreen");
+    
+    }
+  }, [isLogin]); 
 
   // Handle forget password
   const handleForgetPassword = () => {

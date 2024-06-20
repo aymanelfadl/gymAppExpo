@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "gymProjectAppExpo",
+    "name": "FitFlex",
     "slug": "gymProjectAppExpo",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ilyben04.gymProjectAppExpo"
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +32,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2d9ed868-b5bb-4029-af4a-f1593697c177"
+      }
     }
   }
 }
