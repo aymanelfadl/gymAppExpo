@@ -159,7 +159,7 @@ const saveAccessToken = async (token) => {
                 marginBottom: "5%",
               }}
             >
-              تسجيل الدخول
+               gتسجيل الدخول
             </Text>
             <View
               style={{
