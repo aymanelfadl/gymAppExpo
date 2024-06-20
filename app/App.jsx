@@ -12,8 +12,9 @@ import AddUserScreen from '../screens/AddUSerScreen';
 import MembersScreen from '../screens/MemebersScreen';
 import BillsScreen from '../screens/BillsScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setUser, getLink } from '../screens/GlobalState';
-import axios from 'axios';
+import axios  from 'axios';
+import { setUser, getLink } from '../screens/GlobalState'
+
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const Tab = createMaterialTopTabNavigator();
@@ -45,9 +46,10 @@ const HomeDrawer = () => (
     screenOptions={{ headerShown: false, drawerPosition: 'right' }}
     gestureEnabled={true}
   >
-    <Drawer.Screen name='Home' component={HomeTabs} />
-    <Drawer.Screen name='members' component={MembersTabs} />
-    <Drawer.Screen name='bills' component={BillsScreen} />
+     <Drawer.Screen name="لوحة القيادة" component={HomeTabs} />
+      <Drawer.Screen name="سجل الزبائن" component={MembersTabs} />
+      <Drawer.Screen name="سجل الفواتير" component={BillsScreen} />
+  
   </Drawer.Navigator>
 );
 
@@ -55,16 +57,14 @@ const App = () => {
   const [accessToken, setAccessToken] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [serverLink, setServerLink] = useState(null);
-  const [isLogin, setisLogin] = useState(false);
-
 
   useEffect(() => {
     const initialize = async () => {
       try {
         const token = await AsyncStorage.getItem('accessToken');
         if (token) {
+          console.log('Token retrieved:', token);
           setAccessToken(token);
-          await fetchUserCurrent(token);
         } else {
           setLoadingUser(false);
         }
@@ -76,45 +76,50 @@ const App = () => {
 
     const link = getLink();
     setServerLink(link);
+    console.log("Server link initialized: ", link);
     initialize();
   }, []);
 
-  const fetchUserCurrent = async (token) => {   
-    console.log(serverLink)
+  const fetchUserCurrent = async (token) => {
     try {
       const response = await axios.get(`${serverLink}api/userToken`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Pass access token in Authorization header
         },
       });
-      console.log(`${serverLink}api/userToken`);
-      setUser(response.data.data.user);
-      setisLogin(true)
-      console.log("access : " + accessToken);
+      setUser(response.data.data.user); // Set user data in state
+      setLoadingUser(false);
     } catch (error) {
       console.error("Error fetching user data:", error);
-    } finally {
       setLoadingUser(false);
     }
   };
 
+  useEffect(() => {
+    if (accessToken) {
+      fetchUserCurrent(accessToken); // Fetch user data if access token is available
+    }
+  }, [accessToken]); // Run effect whenever access token changes
+
+  if (loadingUser) {
+    return null; // Optionally, show a loading indicator here
+  }
+
   return (
     <NavigationContainer independent={true}>
-    
-        <Stack.Navigator initialRouteName={ isLogin ? 'HomeScreen' : 'Login'}>
-          <Stack.Screen
-            name='Login'
-            options={{ headerShown: false }}
-          >
-            {props => <LoginScreen {...props} serverLink={serverLink} />}
-          </Stack.Screen>
-          <Stack.Screen
-            name='HomeScreen'
-            component={HomeDrawer}
-            options={{ header: () => <Header /> }}
-          />
-        </Stack.Navigator>
-    
+      <Stack.Navigator initialRouteName={loadingUser===false ? 'HomeScreen' : 'Login'}>
+        <Stack.Screen
+          name='Login'
+          options={{ headerShown: false }}
+        >
+          {props => <LoginScreen {...props} serverLink={serverLink} />}
+        </Stack.Screen>
+        <Stack.Screen
+          name='HomeScreen'
+          component={HomeDrawer}
+          options={{ header: () => <Header /> }}
+        />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

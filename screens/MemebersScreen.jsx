@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Text,
   View,
@@ -15,6 +15,7 @@ import EditUserModal from "../components/EditUserModal";
 import HistPaymentModal from "../components/HistPaymentModal";
 import { getUser, getLink } from "./GlobalState"; // Adjust the path as necessary
 import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
 
 const MembersScreen = () => {
   const windowHeight = Dimensions.get("window").height;
@@ -28,13 +29,6 @@ const MembersScreen = () => {
     const link = getLink();
     setServerLink(link);
   }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
-
   const fetchData = async () => {
     try {
       const response = await axios.get(
@@ -46,6 +40,14 @@ const MembersScreen = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchData();
+      }
+    }, [user])
+  );
 
   const disactivateClient = async () => {
     try {
@@ -77,6 +79,13 @@ const MembersScreen = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [showHistPayment, setShowHistPayment] = useState(false);
+
+  const getSearchText = (text) => {
+    const nameParts = text.split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+    setSearchTerm(`${firstName} ${lastName}`);
+  };
 
   const handleSelctedUser = (user) => {
     setSelectedUser(user);
