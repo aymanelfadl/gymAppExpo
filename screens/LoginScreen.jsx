@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
 
 import {
   Image,
@@ -55,53 +57,54 @@ const saveAccessToken = async (token) => {
   // Handle login backend
   const handleLogin = async () => {
     try {
-      const response = await fetch(serverLink + "api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        serverLink + "api/login",
+        {
           email,
           password,
-        }),
-      });
-
-      if (!response.ok) {
-        // Handle HTTP error response
-        const data = await response.json();
-        setErrMessages(data.message || "Login failed");
-        return;
-      }
-
-      // Check if response body is empty
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        const data = await response.json();
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      // Check for success response
+      if (response.status === 200) {
+        const data = response.data;
+  
         // Login successful
         console.log("Login successful");
         saveAccessToken(data.data.access_token.token);
-      
-
-        setUser(data.data.user).then(() => {
-          navigation.navigate("HomeScreen");
-        });
-
-        // Assuming you have AsyncStorage installed for storing tokens in React Native
+  
+        await setUser(data.data.user);
+        navigation.navigate("HomeScreen");
+  
         // Uncomment the following line if you have AsyncStorage set up
         // await AsyncStorage.setItem('accessToken', data.data.access_token.token);
-
-        // Navigate to HomeScreen after successful login
       } else {
-        // No JSON data in response
-        console.log("No JSON data received");
-        setErrMessages("Login failed. No data received.");
+        // Handle non-200 responses
+        console.log("Login failed with status:", response.status);
+        setErrMessages(data.message || "Login failed");
       }
     } catch (error) {
-      console.error("Error", error);
-      setErrMessages( error +" "+ serverLink);
+      // Handle error response
+      if (error.response) {
+        // Server responded with a status other than 200 range
+        console.error("Error response", error.response);
+        setErrMessages(error.response.data.message || "Login failed");
+      } else if (error.request) {
+        // No response was received
+        console.error("Error request", error.request);
+        setErrMessages("No response from server. " + serverLink);
+      } else {
+        // Other errors
+        console.error("Error", error.message);
+        setErrMessages("An unexpected error occurred: " + error.message);
+      }
     }
   };
-
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View
@@ -159,7 +162,7 @@ const saveAccessToken = async (token) => {
                 marginBottom: "5%",
               }}
             >
-               hhتسجيل الدخول
+               hhqتسجيل الدخول
             </Text>
             <View
               style={{
