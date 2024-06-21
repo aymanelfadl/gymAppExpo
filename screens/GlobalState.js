@@ -1,6 +1,6 @@
 // GlobalState.js
 let globalState = {
-  serverLink: "http://192.168.11.103:8000/",
+  serverLink: "https://4781-160-178-81-241.ngrok-free.app/",
   user: null,
 };
 
